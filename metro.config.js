@@ -16,7 +16,6 @@ const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Handle native-only modules that might cause issues on web
   const nativeOnlyModules = [
-    'react-native-maps',
     '@react-native-community/geolocation',
     'react-native-device-info',
     'react-native-permissions',
