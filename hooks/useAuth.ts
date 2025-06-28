@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/database';
@@ -10,10 +10,15 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMountedRef.current) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -27,6 +32,8 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMountedRef.current) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -37,7 +44,10 @@ export function useAuth() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMountedRef.current = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId: string) => {
@@ -48,6 +58,8 @@ export function useAuth() {
         .eq('id', userId)
         .single();
 
+      if (!isMountedRef.current) return;
+
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
       } else {
@@ -56,7 +68,9 @@ export function useAuth() {
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -141,7 +155,11 @@ export function useAuth() {
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      
+      if (isMountedRef.current) {
+        setProfile(data);
+      }
+      
       return { data, error: null };
     } catch (error) {
       return { data: null, error };

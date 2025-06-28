@@ -19,6 +19,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     '@react-native-community/geolocation',
     'react-native-device-info',
     'react-native-permissions',
+    'react-native-maps',
   ];
 
   if (platform === 'web' && nativeOnlyModules.some(mod => moduleName.startsWith(mod))) {
