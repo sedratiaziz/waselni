@@ -14,8 +14,8 @@ config.resolver.sourceExts = [...config.resolver.sourceExts, 'jsx', 'js', 'ts', 
 // Configure resolver to return empty modules for native-only packages on web
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // Handle react-native-maps on web platform
-  if (platform === 'web' && moduleName === 'react-native-maps') {
+  // Handle react-native-maps and all its internal modules on web platform
+  if (platform === 'web' && moduleName.startsWith('react-native-maps')) {
     return {
       filePath: require.resolve('./components/MapComponent.tsx'),
       type: 'sourceFile',
@@ -24,7 +24,6 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 
   // Handle other native-only modules that might cause issues on web
   const nativeOnlyModules = [
-    'react-native-maps',
     '@react-native-community/geolocation',
     'react-native-device-info',
     'react-native-permissions',
