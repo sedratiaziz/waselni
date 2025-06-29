@@ -155,17 +155,19 @@ let Marker: React.FC<MarkerProps>;
 let PROVIDER_GOOGLE: any;
 
 if (Platform.OS === 'web') {
+  // Always use web components on web platform
   MapView = WebMapView;
   Marker = WebMarker;
   PROVIDER_GOOGLE = undefined;
 } else {
-  // Dynamically import react-native-maps only on native platforms
+  // Only import react-native-maps on native platforms
   try {
     const Maps = require('react-native-maps');
     MapView = Maps.default || Maps.MapView;
     Marker = Maps.Marker;
     PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
   } catch (error) {
+    console.warn('react-native-maps not available, falling back to web components');
     // Fallback to web components if react-native-maps is not available
     MapView = WebMapView;
     Marker = WebMarker;
