@@ -149,11 +149,16 @@ const WebMarker: React.FC<MarkerProps> = ({
   return null;
 };
 
-// Platform-specific imports using Platform.select to avoid bundling native code on web
-const NativeMaps = Platform.select({
-  native: () => require('react-native-maps'),
-  default: () => null,
-})?.();
+// Platform-specific imports - only import native maps on non-web platforms
+let NativeMaps: any = null;
+
+if (Platform.OS !== 'web') {
+  try {
+    NativeMaps = require('react-native-maps');
+  } catch (error) {
+    console.warn('react-native-maps not available:', error);
+  }
+}
 
 // Platform-specific exports
 let MapView: React.FC<MapComponentProps>;
